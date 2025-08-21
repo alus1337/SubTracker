@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="auth-panel">
+      <h1>SubTracker</h1>
+
+      <div class="creds">
+        <p>Email</p>
+        <input id="email" />
+
+        <p>Password</p>
+        <input id="password" />
+      </div>
+
+      <div class="auth-selection">
+        <button id="login-button">Login</button>
+        <div class="selection-spacer">
+          <hr />
+          <p>or</p>
+          <hr />
+        </div>
+        <button id="sign-up-button">Sign Up</button>
+      </div>
+    </div>
+
+    <div id="notifications-container"></div>
+    <script type="module" src="scripts/script.js"></script>
+  </body>
+</html>
