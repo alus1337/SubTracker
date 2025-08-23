@@ -4,7 +4,16 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import {
+  getFirestore,
+  addDoc,
+  setDoc,
+  doc,
+  collection,
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,6 +31,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const auth = getAuth();
 
@@ -37,31 +47,41 @@ function notify(message, duration = 3000) {
 
   container.appendChild(notification);
 
-  // Trigger CSS animation
-  setTimeout(() => notification.classList.add("show"), 50);
+  setTimeout(() => {
+    notification.classList.add("show");
+  }, 60);
 
-  // Remove notification after duration
   setTimeout(() => {
     notification.classList.remove("show");
-    // Wait for fade-out transition to finish
     setTimeout(() => notification.remove(), 500);
   }, duration);
 }
 
-function signup() {
-  createUserWithEmailAndPassword(auth, email.value, pw.value)
-    .then((userCredential) => {
-      notify("Signed up!");
-    })
-    .catch((error) => {
-      notify(error.message);
+async function signup() {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email.value,
+      pw.value
+    );
+
+    notify("Signed up!");
+    const user = userCredential.user;
+
+    const docRef = await setDoc(doc(db, "users", user.uid), {
+      UserId: user.uid,
+      Email: user.email,
     });
+  } catch (e) {
+    notify(e.message);
+  }
 }
 
 function login() {
   signInWithEmailAndPassword(auth, email.value, pw.value)
     .then((userCredential) => {
-      notify(userCredential.user);
+      notify("Logged in!");
+      window.location.href = "subs.html";
     })
     .catch((error) => {
       notify(error.message);
@@ -69,11 +89,17 @@ function login() {
 }
 
 const signupButton = document.getElementById("sign-up-button");
-signupButton.onclick = function () {
-  signup();
-};
+if (signupButton) {
+  signupButton.onclick = function () {
+    signup();
+  };
+}
 
 const loginButton = document.getElementById("login-button");
-loginButton.onclick = function () {
-  login();
-};
+if (loginButton) {
+  loginButton.onclick = function () {
+    login();
+  };
+}
+
+export { app, db, auth };

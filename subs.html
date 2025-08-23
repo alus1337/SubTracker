@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link href="subs.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+      integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
     <header>
@@ -20,15 +27,57 @@
     </header>
 
     <main class="main-content">
-      <h1>Your Subscriptions</h1>
+      <div class="content-info">
+        <h1>Your Subscriptions</h1>
+        <button id="add-content">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
 
-      <div class="content-container">
-        <div>
-          <h3>Service Name</h3>
+      <div class="content-container" id="content-container">
+        <div class="sub-info">
+          <p>Service Name</p>
+          <p>Payment Amount</p>
+          <p>Frequency</p>
+          <p>Due Date</p>
+          <p>Actions</p>
         </div>
       </div>
     </main>
 
     <footer></footer>
+
+    <script type="module" src="scripts/subs.js"></script>
+
+    <div id="edit-container">
+      <h2>Add New Subscription</h2>
+      <label class="input-container">
+        Service Name
+        <input type="text" placeholder="Enter service name" />
+      </label>
+
+      <label class="input-container">
+        Payment Amount
+        <input type="text" />
+      </label>
+
+      <div class="frequency-container">
+        <p>Pyament Frequency</p>
+        <label class="frequency-selection">
+          <input type="checkbox"></button>
+          Monthly
+        </label>
+
+        <label class="frequency-selection">
+          <input type="checkbox"></button>
+          Yearly
+        </label>
+      </div>
+
+      <label>
+        Next Payment Date
+        <input type="text" placeholder="YYYY-MM-DD" />
+      </label>
+    </div>
   </body>
 </html>
