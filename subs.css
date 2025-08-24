@@ -119,6 +119,7 @@ header {
   flex-direction: column;
   gap: 20px;
   border-radius: 15px;
+  z-index: 9999;
 }
 
 .input-container {
@@ -148,4 +149,60 @@ header {
   display: flex;
   align-items: center;
   gap: 15px;
+}
+
+.due-container {
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+}
+
+.due-container input {
+  padding: 5px;
+  background-color: transparent;
+  border: 2px solid #161616;
+  border-radius: 8px;
+}
+
+#add-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.3); /* dark tint */
+  backdrop-filter: blur(10px); /* <-- blur everything behind */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9998; /* just under your modal */
+}
+
+#add-submit {
+  background-color: #da0d13;
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+#add-submit:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+#cancel-submit {
+  background-color: #da0d13;
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+#cancel-submit:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
 }

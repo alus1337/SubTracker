@@ -48,4 +48,58 @@ onAuthStateChanged(auth, async (user) => {
 
 const addButton = document.getElementById("add-content");
 if (addButton) {
+  addButton.addEventListener("click", () => {
+    const body = document.body;
+
+    body.insertAdjacentHTML(
+      "beforeend",
+      `
+    <div id="add-overlay">
+      <div id="edit-container">
+        <h2>Add New Subscription</h2>
+        <label class="input-container">
+          Service Name
+          <input type="text" placeholder="Enter service name" />
+        </label>
+
+        <label class="input-container">
+          Payment Amount
+          <input type="text" />
+        </label>
+
+        <div class="frequency-container">
+          <p>Pyament Frequency</p>
+          <label class="frequency-selection">
+            <input type="checkbox" />
+            Monthly
+          </label>
+
+          <label class="frequency-selection">
+            <input type="checkbox" />
+            Yearly
+          </label>
+        </div>
+
+        <label class="due-container">
+          Next Payment Date
+          <input type="text" placeholder="YYYY-MM-DD" />
+        </label>
+
+        <button id="add-submit">Submit</button>
+        <button id="cancel-submit">Cancel</button>
+      </div>
+    </div>
+    `
+    );
+
+    const cancelButton = document.getElementById("cancel-submit");
+    if (cancelButton) {
+      cancelButton.addEventListener("click", () => {
+        const overlay = document.getElementById("add-overlay");
+        if (overlay) {
+          overlay.remove();
+        }
+      });
+    }
+  });
 }
