@@ -5,6 +5,7 @@ import {
   getDocs,
   setDoc,
   doc,
+  deleteDoc,
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 import {
@@ -35,7 +36,7 @@ function notify(message, duration = 3000) {
   }
 }
 
-function createOverlay(mode, data = {}) {
+function createOverlay(data = {}) {
   const body = document.body;
 
   body.insertAdjacentHTML(
@@ -46,38 +47,80 @@ function createOverlay(mode, data = {}) {
         <h2>Edit Subscription</h2>
         <label class="input-container">
           Service Name
-          <input type="text" placeholder="Enter service name" id="add-service"/>
+          <input type="text" placeholder="Enter service name" id="add-service" value="${data.Service || ""}"/>
         </label>
 
         <label class="input-container">
           Payment Amount
-          <input type="text" id="add-amount"/>
+          <input type="text" id="add-amount" value="${data.Amount || ""}"/>
         </label>
 
         <div class="frequency-container">
           <p>Payment Frequency</p>
           <label class="frequency-selection">
-            <input type="checkbox" id="add-frequency-monthly"/>
+            <input type="checkbox" id="add-frequency-monthly" ${data.Frequency === "Monthly" ? "checked" : ""}/>
             Monthly
           </label>
 
           <label class="frequency-selection">
-            <input type="checkbox" id="add-frequency-yearly"/>
+            <input type="checkbox" id="add-frequency-yearly" ${data.Frequency === "Yearly" ? "checked" : ""}/>
             Yearly
           </label>
         </div>
 
         <label class="due-container">
           Next Payment Date
-          <input type="text" placeholder="YYYY-MM-DD" id="add-due"/>
+          <input type="text" placeholder="YYYY-MM-DD" id="add-due" value="${data.Due || ""}"/>
         </label>
 
-        <button id="edit-submit">Submit</button>
+        <button id="add-submit" class="submit-button">Submit</button>
         <button id="cancel-submit">Cancel</button>
       </div>
     </div>
-    `
+    `,
   );
+  linkCancel();
+}
+
+async function handleFormSubmit(mode) {
+  const serviceName = document.getElementById("add-service");
+  const paymentAmount = document.getElementById("add-amount");
+  let frequencyMonthly = document.getElementById("add-frequency-monthly");
+  let frequencyYearly = document.getElementById("add-frequency-yearly");
+  const nextPayDate = document.getElementById("add-due");
+
+  if (!serviceName || !paymentAmount || !frequencyMonthly || !nextPayDate) {
+    console.log("One or more required elements are missing");
+    return;
+  }
+
+  if (serviceName.value === "") {
+    notify("A service name must be selected!");
+    return;
+  }
+
+  if (paymentAmount.value[0] != "$") {
+    paymentAmount.value = "$" + paymentAmount.value;
+  }
+
+  if (frequencyMonthly.checked === frequencyYearly.checked) {
+    notify("A single duration must be selected!");
+    return;
+  }
+
+  const frequency = frequencyMonthly.checked ? "Monthly" : "Yearly";
+
+  if (mode === "edit") {
+    // serviceName is firestore doc id
+    await deleteDoc(doc(db, "users", userId, "services", serviceName.value));
+  }
+
+  await setDoc(doc(db, "users", userId, "services", serviceName.value), {
+    Amount: paymentAmount.value,
+    Due: nextPayDate.value,
+    Frequency: frequency,
+    Service: serviceName.value,
+  });
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -89,8 +132,8 @@ onAuthStateChanged(auth, async (user) => {
     const container = document.getElementById("content-container");
 
     if (docSnap) {
-      docSnap.forEach((doc) => {
-        const docData = doc.data();
+      docSnap.forEach((fireDoc) => {
+        const docData = fireDoc.data();
 
         if (container) {
           container.insertAdjacentHTML(
@@ -110,102 +153,37 @@ onAuthStateChanged(auth, async (user) => {
             }">Delete</button>
           </div>
         </div>
-        `
+        `,
           );
         }
 
         const editButton = document.getElementById(docData.Service + "-edit");
         if (editButton) {
           editButton.addEventListener("click", async () => {
-            const body = document.body;
+            createOverlay(docData);
 
-            body.insertAdjacentHTML(
-              "beforeend",
-              `
-    <div id="add-overlay">
-      <div id="edit-container">
-        <h2>Edit Subscription</h2>
-        <label class="input-container">
-          Service Name
-          <input type="text" placeholder="Enter service name" id="add-service"/>
-        </label>
-
-        <label class="input-container">
-          Payment Amount
-          <input type="text" id="add-amount"/>
-        </label>
-
-        <div class="frequency-container">
-          <p>Payment Frequency</p>
-          <label class="frequency-selection">
-            <input type="checkbox" id="add-frequency-monthly"/>
-            Monthly
-          </label>
-
-          <label class="frequency-selection">
-            <input type="checkbox" id="add-frequency-yearly"/>
-            Yearly
-          </label>
-        </div>
-
-        <label class="due-container">
-          Next Payment Date
-          <input type="text" placeholder="YYYY-MM-DD" id="add-due"/>
-        </label>
-
-        <button id="edit-submit">Submit</button>
-        <button id="cancel-submit">Cancel</button>
-      </div>
-    </div>
-    `
-            );
-            linkCancel();
-
-            const submit = document.getElementById("edit-submit");
+            const submit = document.getElementById("add-submit");
             if (submit) {
               submit.addEventListener("click", () => {
-                const serviceName = document.getElementById("add-service");
-                const paymentAmount = document.getElementById("add-amount");
-                let frequencyMonthly = document.getElementById(
-                  "add-frequency-monthly"
-                );
-                let frequencyYearly = document.getElementById(
-                  "add-frequency-yearly"
-                );
-                const nextPayDate = document.getElementById("add-due");
-
-                if (
-                  !serviceName ||
-                  !paymentAmount ||
-                  !frequencyMonthly ||
-                  !nextPayDate
-                ) {
-                  console.log("One or more required elements are missing");
-                  return;
-                }
-
-                if (serviceName.value === "") {
-                  notify("A service name must be selected!");
-                  return;
-                }
-
-                if (paymentAmount.value[0] != "$") {
-                  paymentAmount.value = "$" + paymentAmount.value;
-                }
-
-                if (frequencyMonthly.checked === frequencyYearly.checked) {
-                  notify("A single duration must be selected!");
-                  return;
-                }
-
-                if (frequencyMonthly.checked) {
-                  frequencyMonthly = "Monthly";
-                } else {
-                  frequencyMonthly = "Yearly";
-                }
-
-                //await setDoc(doc(db, "users", userId, "services", ))
+                handleFormSubmit("edit");
               });
+            }
+          });
+        }
+
+        const deleteButton = document.getElementById(
+          docData.Service + "-delete",
+        );
+        if (deleteButton) {
+          deleteButton.addEventListener("click", async () => {
+            try {
+              await deleteDoc(
+                doc(db, "users", userId, "services", docData.Service),
+              );
+              notify("Subscription deleted!");
+            } catch (error) {
+              notify("Error while deleting subscription check console");
+              console.log(error.message);
             }
           });
         }
@@ -221,94 +199,12 @@ if (addButton) {
   addButton.addEventListener("click", async () => {
     const body = document.body;
 
-    body.insertAdjacentHTML(
-      "beforeend",
-      `
-    <div id="add-overlay">
-      <div id="edit-container">
-        <h2>Add New Subscription</h2>
-        <label class="input-container">
-          Service Name
-          <input type="text" placeholder="Enter service name" id="add-service"/>
-        </label>
-
-        <label class="input-container">
-          Payment Amount
-          <input type="text" id="add-amount"/>
-        </label>
-
-        <div class="frequency-container">
-          <p>Payment Frequency</p>
-          <label class="frequency-selection">
-            <input type="checkbox" id="add-frequency-monthly"/>
-            Monthly
-          </label>
-
-          <label class="frequency-selection">
-            <input type="checkbox" id="add-frequency-yearly"/>
-            Yearly
-          </label>
-        </div>
-
-        <label class="due-container">
-          Next Payment Date
-          <input type="text" placeholder="YYYY-MM-DD" id="add-due"/>
-        </label>
-
-        <button id="add-submit">Submit</button>
-        <button id="cancel-submit">Cancel</button>
-      </div>
-    </div>
-    `
-    );
-
-    linkCancel();
+    createOverlay();
 
     const submitButton = document.getElementById("add-submit");
     if (submitButton) {
       submitButton.addEventListener("click", async () => {
-        const serviceName = document.getElementById("add-service");
-        const paymentAmount = document.getElementById("add-amount");
-        let frequencyMonthly = document.getElementById("add-frequency-monthly");
-        let frequencyYearly = document.getElementById("add-frequency-yearly");
-        const nextPayDate = document.getElementById("add-due");
-
-        if (
-          !serviceName ||
-          !paymentAmount ||
-          !frequencyMonthly ||
-          !nextPayDate
-        ) {
-          console.log("One or more required elements are missing");
-          return;
-        }
-
-        if (serviceName.value === "") {
-          notify("A service name must be selected!");
-          return;
-        }
-
-        if (paymentAmount.value[0] != "$") {
-          paymentAmount.value = "$" + paymentAmount.value;
-        }
-
-        if (frequencyMonthly.checked === frequencyYearly.checked) {
-          notify("A single duration must be selected!");
-          return;
-        }
-
-        if (frequencyMonthly.checked) {
-          frequencyMonthly = "Monthly";
-        } else {
-          frequencyMonthly = "Yearly";
-        }
-
-        await setDoc(doc(db, "users", userId, "services", serviceName.value), {
-          Amount: paymentAmount.value,
-          Due: nextPayDate.value,
-          Frequency: frequencyMonthly,
-          Service: serviceName.value,
-        });
+        handleFormSubmit("add");
       });
     }
   });

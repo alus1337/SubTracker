@@ -36,7 +36,9 @@ header {
   border-radius: 8px;
   opacity: 0;
   transform: translateX(100%);
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .notification.show {
@@ -76,7 +78,9 @@ header {
   cursor: pointer;
   background-color: #da0d13;
   transform: scale(1.1);
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .main-content {
@@ -119,12 +123,24 @@ header {
   padding: 10px;
 }
 
+.edit-button:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+  transition: transform ease 0.3s;
+}
+
 .delete-button {
   background-color: #da0d13;
 
   border: none;
   border-radius: 15px;
   padding: 10px;
+}
+
+.delete-button:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+  transition: transform ease 0.3s;
 }
 
 .actions {
@@ -205,14 +221,14 @@ header {
   z-index: 9998; /* just under your modal */
 }
 
-#add-submit {
+.submit-button {
   background-color: #da0d13;
   border: none;
   border-radius: 8px;
   padding: 6px;
 }
 
-#add-submit:hover {
+.submit-button:hover {
   cursor: pointer;
   transform: scale(1.1);
   transition: transform 0.3s ease;
